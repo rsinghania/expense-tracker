@@ -5,6 +5,8 @@ import { RouterModule } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { NgApexchartsModule } from 'ng-apexcharts';
+import { MatTableModule } from '@angular/material/table';
+import { MatIconModule } from '@angular/material/icon';
 
 import { AppComponent } from './app.component';
 import { HomepageComponent } from './components/homepage/homepage.component';
@@ -25,7 +27,9 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
     ]),
     MatButtonModule,
     MatCardModule,
-    NgApexchartsModule
+    MatTableModule,
+    NgApexchartsModule,
+    MatIconModule
   ],
   providers: [],
   bootstrap: [AppComponent]

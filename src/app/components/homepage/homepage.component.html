@@ -1,1 +1,35 @@
-<p>homepage works!</p>
+<div class="homepage-container">
+    <mat-card class="upload-card">
+      <mat-card-header>
+        <mat-card-title>Welcome to Your Expense Tracker</mat-card-title>
+        <mat-card-subtitle>Upload your bank statement to get started</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="upload-area" (click)="fileInput.click()" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+          <mat-icon>cloud_upload</mat-icon>
+          <p>Drag and drop your CSV file here or click to select</p>
+          <input type="file" #fileInput style="display: none;" (change)="onFileSelected($event)" accept=".csv">
+        </div>
+      </mat-card-content>
+      <mat-card-actions>
+        <button mat-raised-button color="primary" (click)="fileInput.click()">Select File</button>
+      </mat-card-actions>
+    </mat-card>
+    <div class="features">
+      <mat-card>
+        <mat-icon>pie_chart</mat-icon>
+        <h3>Visualize Expenses</h3>
+        <p>See your spending habits at a glance with interactive charts</p>
+      </mat-card>
+      <mat-card>
+        <mat-icon>category</mat-icon>
+        <h3>Categorize Transactions</h3>
+        <p>Automatically categorize your expenses for better insights</p>
+      </mat-card>
+      <mat-card>
+        <mat-icon>trending_up</mat-icon>
+        <h3>Track Trends</h3>
+        <p>Monitor your financial trends over time</p>
+      </mat-card>
+    </div>
+  </div>
