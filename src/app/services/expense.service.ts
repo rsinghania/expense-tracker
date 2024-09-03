@@ -38,8 +38,12 @@ export class ExpenseService {
           }
           const headers = result.data[startIndex] as string[];
           const transactionData = result.data.slice(startIndex + 1);
-          const expenses = this.processCSVData(headers, transactionData);
-          this.expenses = [...this.expenses, ...expenses];
+
+          const filtered_data = transactionData.filter((row:any) => row.length == 7);
+
+          
+          const expenses = this.processCSVData(headers, filtered_data);
+          this.expenses = [...expenses];
           this.updateExpenses();
           resolve();
         },
@@ -60,10 +64,10 @@ export class ExpenseService {
       balance: headers.indexOf('BAL')
     };
 
-    const filtered_data = data.filter(row => row.length == 7);
+  
 
-    return filtered_data.map(row => ({
-      date: new Date(row[indexMap.date]),
+    return data.map(row => ({
+      date: setDate(row[0]),
       description: row[indexMap.description],
       debit: parseFloat(row[indexMap.debit]) || 0,
       credit: parseFloat(row[indexMap.credit]) || 0,
@@ -96,3 +100,9 @@ export class ExpenseService {
     }
   }
 }
+
+function setDate(dateString: string): any {
+  const [day, month, year] = dateString.split('-').map(Number);
+  const date = new Date(year, month - 1, day); 
+  return date;
+} 

@@ -1,47 +1,136 @@
 .homepage-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem;
-  background-color: #f5f5f5;
-  min-height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
 }
-.upload-card {
-  width: 100%;
-  max-width: 600px;
-  margin-bottom: 2rem;
-}
-.upload-area {
-  border: 2px dashed #ccc;
-  border-radius: 5px;
-  padding: 2rem;
+
+header {
   text-align: center;
+  margin-bottom: 40px;
+}
+
+header h1 {
+  color: #333;
+  font-size: 2.5em;
+}
+
+header p {
+  color: #666;
+  font-size: 1.2em;
+}
+
+.upload-section {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.upload-area {
+  border: 2px dashed #3f51b5;
+  border-radius: 10px;
+  padding: 40px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
+
 .upload-area:hover {
   background-color: #f0f0f0;
 }
+
 .upload-area mat-icon {
   font-size: 48px;
   width: 48px;
   height: 48px;
   color: #3f51b5;
 }
-.features {
+
+.file-types {
+  margin-top: 10px;
+  color: #666;
+}
+
+.features-overview {
   display: flex;
   justify-content: space-around;
-  width: 100%;
-  max-width: 900px;
+  margin-bottom: 40px;
 }
-.features mat-card {
-  width: 30%;
+
+.feature {
   text-align: center;
-  padding: 1rem;
 }
-.features mat-icon {
+
+.feature mat-icon {
   font-size: 36px;
   width: 36px;
   height: 36px;
   color: #3f51b5;
+}
+
+.dashboard-preview {
+  margin-bottom: 40px;
+}
+
+.chart-preview img {
+  max-width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cta-buttons {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.cta-buttons button {
+  margin: 0 10px;
+}
+
+.testimonials {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 40px;
+}
+
+.testimonial {
+  font-style: italic;
+}
+
+.financial-tips {
+  background-color: #e8f5e9;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 40px;
+}
+
+footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+  border-top: 1px solid #ddd;
+}
+
+footer a {
+  color: #666;
+  text-decoration: none;
+  margin-right: 20px;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+.social-icons {
+  /* Add styles for social media icons */
+}
+
+@media (max-width: 768px) {
+  .features-overview {
+    flex-direction: column;
+  }
+
+  .feature {
+    margin-bottom: 20px;
+  }
 }

@@ -1,35 +1,70 @@
 <div class="homepage-container">
-    <mat-card class="upload-card">
-      <mat-card-header>
-        <mat-card-title>Welcome to Your Expense Tracker</mat-card-title>
-        <mat-card-subtitle>Upload your bank statement to get started</mat-card-subtitle>
-      </mat-card-header>
-      <mat-card-content>
-        <div class="upload-area" (click)="fileInput.click()" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
-          <mat-icon>cloud_upload</mat-icon>
-          <p>Drag and drop your CSV file here or click to select</p>
-          <input type="file" #fileInput style="display: none;" (change)="onFileSelected($event)" accept=".csv">
-        </div>
-      </mat-card-content>
-      <mat-card-actions>
-        <button mat-raised-button color="primary" (click)="fileInput.click()">Select File</button>
-      </mat-card-actions>
-    </mat-card>
-    <div class="features">
-      <mat-card>
-        <mat-icon>pie_chart</mat-icon>
-        <h3>Visualize Expenses</h3>
-        <p>See your spending habits at a glance with interactive charts</p>
-      </mat-card>
-      <mat-card>
-        <mat-icon>category</mat-icon>
-        <h3>Categorize Transactions</h3>
-        <p>Automatically categorize your expenses for better insights</p>
-      </mat-card>
-      <mat-card>
-        <mat-icon>trending_up</mat-icon>
-        <h3>Track Trends</h3>
-        <p>Monitor your financial trends over time</p>
-      </mat-card>
+  <header>
+    <h1>Welcome to Your Personal Expense Manager!</h1>
+    <p>Easily track and analyze your expenses to manage your finances better.</p>
+  </header>
+
+  <section class="upload-section">
+    <div class="upload-area" (click)="fileInput.click()" (dragover)="onDragOver($event)" (drop)="onDrop($event)">
+      <mat-icon>cloud_upload</mat-icon>
+      <h2>Upload Your Transaction File</h2>
+      <p>Drag and drop your file here or click to select</p>
+      <input type="file" #fileInput style="display: none;" (change)="onFileSelected($event)" accept=".csv,.pdf,.xlsx">
     </div>
-  </div>
+    <p class="file-types">Supported file types: CSV, PDF, Excel</p>
+  </section>
+
+  <section class="features-overview">
+    <div class="feature">
+      <mat-icon>category</mat-icon>
+      <h3>Expense Categorization</h3>
+    </div>
+    <div class="feature">
+      <mat-icon>insights</mat-icon>
+      <h3>Spending Insights</h3>
+    </div>
+    <div class="feature">
+      <mat-icon>bar_chart</mat-icon>
+      <h3>Interactive Charts</h3>
+    </div>
+    <div class="feature">
+      <mat-icon>download</mat-icon>
+      <h3>Download Reports</h3>
+    </div>
+  </section>
+
+  <section class="dashboard-preview">
+    <h2>Your Financial Dashboard Preview</h2>
+    <div class="chart-preview">
+      <!-- Placeholder for chart preview -->
+      <img src="assets/chart-preview.png" alt="Chart Preview">
+    </div>
+  </section>
+
+  <section class="cta-buttons">
+    <button mat-raised-button color="primary" >Get Started</button>
+    <button mat-button >Learn More</button>
+  </section>
+
+  <section class="testimonials">
+    <h2>What Our Users Say</h2>
+    <div class="testimonial">
+      <p>"This app has completely changed how I manage my finances. Highly recommended!"</p>
+      <span>- John D.</span>
+    </div>
+  </section>
+
+  <section class="financial-tips">
+    <h2>Financial Tip of the Day</h2>
+    <p>Setting up automatic savings can help you reach your financial goals faster.</p>
+  </section>
+
+  <footer>
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Service</a>
+    <a href="#">Contact Us</a>
+    <div class="social-icons">
+      <!-- Add social media icons here -->
+    </div>
+  </footer>
+</div>
