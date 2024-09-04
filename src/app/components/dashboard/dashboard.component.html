@@ -1,73 +1,148 @@
 <div class="dashboard-container">
-    <div class="upload-section">
-      <input type="file" (change)="onFileSelected($event)" accept=".csv" #fileInput style="display: none;">
-      <button mat-raised-button color="primary" (click)="fileInput.click()">Upload Bank Statement</button>
-    </div>
-  
-    <div class="charts-container">
-      <div class="chart">
+  <div class="upload-section">
+    <input type="file" (change)="onFileSelected($event)" accept=".csv" #fileInput style="display: none;">
+    <button mat-raised-button color="primary" (click)="fileInput.click()">Upload Bank Statement</button>
+  </div>
+
+  <mat-card class="filter-card">
+    <mat-card-header>
+      <mat-card-title>Filters</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="filterForm" (ngSubmit)="applyFilter()">
+        <mat-form-field>
+          <mat-label>Start Date</mat-label>
+          <input matInput [matDatepicker]="startPicker" formControlName="startDate">
+          <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+          <mat-datepicker #startPicker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>End Date</mat-label>
+          <input matInput [matDatepicker]="endPicker" formControlName="endDate">
+          <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+          <mat-datepicker #endPicker></mat-datepicker>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Category</mat-label>
+          <mat-select formControlName="category">
+            <mat-option value="">All</mat-option>
+            <mat-option *ngFor="let category of ['Transfer', 'Food', 'Shopping', 'Bills']" [value]="category">
+              {{category}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Min Amount</mat-label>
+          <input matInput type="number" formControlName="minAmount">
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Max Amount</mat-label>
+          <input matInput type="number" formControlName="maxAmount">
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit">Apply Filters</button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="charts-container">
+    <mat-card class="chart-card">
+      <mat-card-header>
+        <mat-card-title>Total Spending by Category</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
         <apx-chart
-          [series]="categoryChartOptions.series"
-          [chart]="categoryChartOptions.chart"
-          [labels]="categoryChartOptions.labels"
-          [title]="categoryChartOptions.title"
+          [series]="barChartOptions.series"
+          [chart]="barChartOptions.chart"
+          [xaxis]="barChartOptions.xaxis"
+          [title]="barChartOptions.title"
         ></apx-chart>
-      </div>
-      <div class="chart">
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="chart-card">
+      <mat-card-header>
+        <mat-card-title>Daily Spending Trend</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
         <apx-chart
-          [series]="monthlyTrendChartOptions.series"
-          [chart]="monthlyTrendChartOptions.chart"
-          [xaxis]="monthlyTrendChartOptions.xaxis"
-          [title]="monthlyTrendChartOptions.title"
+          [series]="lineChartOptions.series"
+          [chart]="lineChartOptions.chart"
+          [xaxis]="lineChartOptions.xaxis"
+          [title]="lineChartOptions.title"
         ></apx-chart>
-      </div>
-      <div class="chart">
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="chart-card">
+      <mat-card-header>
+        <mat-card-title>Spending Distribution by Category</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
         <apx-chart
-          [series]="incomeVsExpenseChartOptions.series"
-          [chart]="incomeVsExpenseChartOptions.chart"
-          [xaxis]="incomeVsExpenseChartOptions.xaxis"
-          [title]="incomeVsExpenseChartOptions.title"
+          [series]="donutChartOptions.series"
+          [chart]="donutChartOptions.chart"
+          [labels]="donutChartOptions.labels"
+          [title]="donutChartOptions.title"
         ></apx-chart>
-      </div>
-      <div class="chart">
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="chart-card">
+      <mat-card-header>
+        <mat-card-title>Cumulative Spending Over Time</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
         <apx-chart
-          [series]="dailyBalanceChartOptions.series"
-          [chart]="dailyBalanceChartOptions.chart"
-          [xaxis]="dailyBalanceChartOptions.xaxis"
-          [title]="dailyBalanceChartOptions.title"
+          [series]="areaChartOptions.series"
+          [chart]="areaChartOptions.chart"
+          [xaxis]="areaChartOptions.xaxis"
+          [title]="areaChartOptions.title"
         ></apx-chart>
-      </div>
-    </div>
-  
-    <div class="transactions-table">
-      <table mat-table [dataSource]="transactions">
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <mat-card class="transactions-card">
+    <mat-card-header>
+      <mat-card-title>Transactions</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <mat-form-field>
+        <mat-label>Search</mat-label>
+        <input matInput (keyup)="searchTransactions($event)" placeholder="Ex. Food">
+      </mat-form-field>
+      <table mat-table [dataSource]="dataSource" matSort>
         <ng-container matColumnDef="date">
-          <th mat-header-cell *matHeaderCellDef> Date </th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Date </th>
           <td mat-cell *matCellDef="let transaction"> {{transaction.date | date}} </td>
         </ng-container>
         <ng-container matColumnDef="description">
-          <th mat-header-cell *matHeaderCellDef> Description </th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Description </th>
           <td mat-cell *matCellDef="let transaction"> {{transaction.description}} </td>
         </ng-container>
         <ng-container matColumnDef="debit">
-          <th mat-header-cell *matHeaderCellDef> Debit </th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Debit </th>
           <td mat-cell *matCellDef="let transaction"> {{transaction.debit | currency:'INR'}} </td>
         </ng-container>
         <ng-container matColumnDef="credit">
-          <th mat-header-cell *matHeaderCellDef> Credit </th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Credit </th>
           <td mat-cell *matCellDef="let transaction"> {{transaction.credit | currency:'INR'}} </td>
         </ng-container>
         <ng-container matColumnDef="balance">
-          <th mat-header-cell *matHeaderCellDef> Balance </th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Balance </th>
           <td mat-cell *matCellDef="let transaction"> {{transaction.balance | currency:'INR'}} </td>
         </ng-container>
         <ng-container matColumnDef="category">
-          <th mat-header-cell *matHeaderCellDef> Category </th>
+          <th mat-header-cell *matHeaderCellDef mat-sort-header> Category </th>
           <td mat-cell *matCellDef="let transaction"> {{transaction.category}} </td>
         </ng-container>
-  
-        <tr mat-header-row *matHeaderRowDef="['date', 'description', 'debit', 'credit', 'balance', 'category']"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['date', 'description', 'debit', 'credit', 'balance', 'category'];"></tr>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
-    </div>
-  </div>
+      <mat-paginator [pageSizeOptions]="[5, 10, 25, 100]" showFirstLastButtons></mat-paginator>
+    </mat-card-content>
+  </mat-card>
+
+  <button mat-raised-button color="primary" (click)="generatePdfReport()">Generate PDF Report</button>
+</div>

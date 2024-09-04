@@ -1,5 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import { ApexAxisChartSeries, ApexOptions } from 'ng-apexcharts';
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup } from '@angular/forms';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
 import { Expense, ExpenseService } from '../../services/expense.service';
 
 @Component({
@@ -9,130 +12,199 @@ import { Expense, ExpenseService } from '../../services/expense.service';
 })
 export class DashboardComponent implements OnInit {
   transactions: Expense[] = [];
-  categoryChartOptions: any;
-  monthlyTrendChartOptions!: any
-  incomeVsExpenseChartOptions!: any
-  dailyBalanceChartOptions!:any
+  filteredTransactions: Expense[] = [];
+  filterForm: FormGroup;
 
-  constructor(private expenseService: ExpenseService) {
-    this.initializeChartOptions();
+  dataSource: MatTableDataSource<Expense>;
+  displayedColumns: string[] = ['date', 'description', 'debit', 'credit', 'balance', 'category'];
+
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
+  @ViewChild(MatSort) sort!: MatSort;
+
+  barChartOptions: any;
+  lineChartOptions: any;
+  donutChartOptions: any;
+  areaChartOptions: any;
+
+  constructor(
+    private transactionService: ExpenseService,
+    private fb: FormBuilder
+  ) {
+    this.filterForm = this.fb.group({
+      startDate: [''],
+      endDate: [''],
+      category: [''],
+      minAmount: [''],
+      maxAmount: ['']
+    });
+
+    this.dataSource = new MatTableDataSource(this.filteredTransactions);
   }
 
   ngOnInit() {
-    this.expenseService.getExpenses().subscribe(transactions => {
+    this.transactionService.getExpenses().subscribe(transactions => {
       this.transactions = transactions;
+      this.filteredTransactions = transactions;
+      this.dataSource.data = this.filteredTransactions;
       this.updateCharts();
     });
   }
 
-  initializeChartOptions() {
-    this.categoryChartOptions = {
-      series: [],
-      chart: { type: 'pie', height: 350 },
-      labels: [],
-      title: { text: 'Expense Distribution by Category' }
-    };
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
 
-    this.monthlyTrendChartOptions = {
-      series: [{ name: 'Expenses', data: [] }],
-      chart: { type: 'line', height: 350 },
-      xaxis: { categories: [] },
-      title: { text: 'Monthly Expense Trend' }
-    };
+  applyFilter() {
+    const startDate = this.filterForm.get('startDate')?.value;
+    const endDate = this.filterForm.get('endDate')?.value;
+    const category = this.filterForm.get('category')?.value;
+    const minAmount = this.filterForm.get('minAmount')?.value;
+    const maxAmount = this.filterForm.get('maxAmount')?.value;
 
-    this.incomeVsExpenseChartOptions = {
-      series: [
-        { name: 'Income', data: [] },
-        { name: 'Expenses', data: [] }
-      ],
-      chart: { type: 'bar', height: 350 },
-      xaxis: { categories: [] },
-      title: { text: 'Income vs Expenses' }
-    };
+    this.filteredTransactions = this.transactions.filter(t => {
+      const dateInRange = (!startDate || t.date >= startDate) && (!endDate || t.date <= endDate);
+      const categoryMatch = !category || t.category === category;
+      const amount = t.debit > 0 ? t.debit : t.credit;
+      const amountInRange = (!minAmount || amount >= minAmount) && (!maxAmount || amount <= maxAmount);
+      return dateInRange && categoryMatch && amountInRange;
+    });
 
-    this.dailyBalanceChartOptions = {
-      series: [{ name: 'Balance', data: [] }],
-      chart: { type: 'area', height: 350 },
-      xaxis: { type: 'datetime' },
-      title: { text: 'Daily Balance Trend' }
-    };
+    this.dataSource.data = this.filteredTransactions;
+    this.updateCharts();
   }
 
   updateCharts() {
-    this.updateCategoryChart();
-    this.updateMonthlyTrendChart();
-    this.updateIncomeVsExpenseChart();
-    this.updateDailyBalanceChart();
+    this.updateBarChart();
+    this.updateLineChart();
+    this.updateDonutChart();
+    this.updateAreaChart();
   }
 
-  updateCategoryChart() {
-    const categoryTotals = this.transactions.reduce((acc, transaction) => {
-      if (transaction.debit > 0) {
-        acc[transaction.category] = (acc[transaction.category] || 0) + transaction.debit;
+  updateBarChart() {
+    const categoryTotals = this.getCategoryTotals();
+    this.barChartOptions = {
+      series: [{
+        name: 'Total Spending',
+        data: Object.values(categoryTotals)
+      }],
+      chart: {
+        type: 'bar',
+        height: 350
+      },
+      xaxis: {
+        categories: Object.keys(categoryTotals)
+      },
+      title: {
+        text: 'Total Spending by Category'
       }
-      return acc;
-    }, {} as Record<string, number>);
-
-    this.categoryChartOptions.series = Object.values(categoryTotals);
-    this.categoryChartOptions.labels = Object.keys(categoryTotals);
-  }
-
-  updateMonthlyTrendChart() {
-    const monthlyExpenses = this.transactions.reduce((acc, transaction) => {
-      const month = transaction.date.toLocaleString('default', { month: 'short' });
-      acc[month] = (acc[month] || 0) + transaction.debit;
-      return acc;
-    }, {} as Record<string, number>);
-
-    this.monthlyTrendChartOptions.series = [{
-      name: 'Expenses',
-      data: Object.values(monthlyExpenses)
-    }];
-    this.monthlyTrendChartOptions.xaxis = {
-      categories: Object.keys(monthlyExpenses)
     };
   }
 
-  updateIncomeVsExpenseChart() {
-    const monthlyData = this.transactions.reduce((acc, transaction) => {
-      const month = transaction.date.toLocaleString('default', { month: 'short' });
-      if (!acc[month]) acc[month] = { income: 0, expenses: 0 };
-      acc[month].income += transaction.credit;
-      acc[month].expenses += transaction.debit;
-      return acc;
-    }, {} as Record<string, { income: number, expenses: number }>);
-
-    const months = Object.keys(monthlyData);
-    const incomeData = months.map(month => monthlyData[month].income);
-    const expenseData = months.map(month => monthlyData[month].expenses);
-
-    this.incomeVsExpenseChartOptions.series = [
-      { name: 'Income', data: incomeData },
-      { name: 'Expenses', data: expenseData }
-    ];
-    this.incomeVsExpenseChartOptions.xaxis = { categories: months };
+  updateLineChart() {
+    const dailySpending = this.getDailySpending();
+    this.lineChartOptions = {
+      series: [{
+        name: 'Daily Spending',
+        data: Object.values(dailySpending)
+      }],
+      chart: {
+        type: 'line',
+        height: 350
+      },
+      xaxis: {
+        categories: Object.keys(dailySpending),
+        type: 'datetime'
+      },
+      title: {
+        text: 'Daily Spending Trend'
+      }
+    };
   }
 
-  updateDailyBalanceChart() {
-    const dailyBalance = this.transactions.map(transaction => ({
-      x: transaction.date.getTime(),
-      y: transaction.balance
-    }));
+  updateDonutChart() {
+    const categoryTotals = this.getCategoryTotals();
+    this.donutChartOptions = {
+      series: Object.values(categoryTotals),
+      chart: {
+        type: 'donut',
+        height: 350
+      },
+      labels: Object.keys(categoryTotals),
+      title: {
+        text: 'Spending Distribution by Category'
+      }
+    };
+  }
 
-    this.dailyBalanceChartOptions.series = [{
-      name: 'Balance',
-      data: dailyBalance
-    }];
+  updateAreaChart() {
+    const cumulativeSpending = this.getCumulativeSpending();
+    this.areaChartOptions = {
+      series: [{
+        name: 'Cumulative Spending',
+        data: Object.values(cumulativeSpending)
+      }],
+      chart: {
+        type: 'area',
+        height: 350
+      },
+      xaxis: {
+        categories: Object.keys(cumulativeSpending),
+        type: 'datetime'
+      },
+      title: {
+        text: 'Cumulative Spending Over Time'
+      }
+    };
+  }
+
+  getCategoryTotals() {
+    return this.filteredTransactions.reduce((acc, t) => {
+      if (t.debit > 0) {
+        acc[t.category] = (acc[t.category] || 0) + t.debit;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+  }
+
+  getDailySpending() {
+    return this.filteredTransactions.reduce((acc, t) => {
+      const date = t.date.toISOString().split('T')[0];
+      acc[date] = (acc[date] || 0) + t.debit;
+      return acc;
+    }, {} as Record<string, number>);
+  }
+
+  getCumulativeSpending() {
+    let cumulative = 0;
+    return this.filteredTransactions
+      .sort((a, b) => a.date.getTime() - b.date.getTime())
+      .reduce((acc, t) => {
+        const date = t.date.toISOString().split('T')[0];
+        cumulative += t.debit;
+        acc[date] = cumulative;
+        return acc;
+      }, {} as Record<string, number>);
+  }
+
+  searchTransactions(event: Event) {
+    const filterValue = (event.target as HTMLInputElement).value;
+    this.dataSource.filter = filterValue.trim().toLowerCase();
   }
 
   onFileSelected(event: any) {
     const file: File = event.target.files[0];
     if (file) {
-      this.expenseService.uploadStatement(file).then(() => {
+      this.transactionService.uploadStatement(file).then(() => {
         console.log('CSV processed successfully');
       }).catch((error:any) => {
         console.error('Error processing CSV:', error);
       });
     }
+  }
+
+  generatePdfReport() {
+    // Implement PDF report generation logic here
+    console.log('Generating PDF report...');
   }
 }
